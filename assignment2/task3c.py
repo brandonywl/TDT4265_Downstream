@@ -69,12 +69,15 @@ if __name__ == "__main__":
         train_history_no_shuffle["loss"], "Task 3c Model - Momentum", npoints_to_average=10)
     plt.ylim([0, 1.3])
     plt.subplot(1, 2, 2)
-    plt.ylim([0.85, .97])
-    utils.plot_loss(val_history["accuracy"], "Task 3c Model")
+    plt.ylim([0.85, 1])
+    utils.plot_loss(train_history["accuracy"], "(Train) Task 3c Model")
     utils.plot_loss(
-        val_history_no_shuffle["accuracy"], "Task 3c Model - Momentum")
-    plt.ylabel("Validation Accuracy")
+        train_history_no_shuffle["accuracy"], "(Train) Task 3c Model - Momentum")
+    utils.plot_loss(val_history["accuracy"], "(Validation) Task 3c Model")
+    utils.plot_loss(
+        val_history_no_shuffle["accuracy"], "(Validation) Task 3c Model - Momentum")
+    plt.ylabel("Accuracy")
     plt.legend()
-    plt.savefig("task3c_momentum_new.png")
+    plt.savefig("task3c_momentum.png")
     plt.show()
  

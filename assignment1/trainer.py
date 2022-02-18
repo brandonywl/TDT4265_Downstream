@@ -71,7 +71,7 @@ class BaseTrainer:
             loss={},
             accuracy={}
         )
-
+        
         global_step = 0
         for epoch in range(num_epochs):
             train_loader = utils.batch_loader(
@@ -90,5 +90,14 @@ class BaseTrainer:
 
                     # TODO (Task 2d): Implement early stopping here.
                     # You can access the validation loss in val_history["loss"]
+                    losses = list(val_history["loss"].values())
+                    if len(losses) > 10:
+                        lowest = min(losses)
+                        num_increased_epoch = list(map(lambda x: lowest < x, losses[-10:]))
+                        if sum(num_increased_epoch) == 10:
+                            print("End Epoch: ", epoch)
+                            return train_history, val_history
+                    
+                    
                 global_step += 1
         return train_history, val_history

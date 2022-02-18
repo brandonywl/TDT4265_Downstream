@@ -14,8 +14,8 @@ if __name__ == "__main__":
     momentum_gamma = .9  # Task 3 hyperparameter
     shuffle_data = True
 
-    use_improved_weight_init = True
-    use_improved_sigmoid = True
+    use_improved_weight_init = False
+    use_improved_sigmoid = False
     use_momentum = False
 
     # Load dataset
@@ -45,8 +45,8 @@ if __name__ == "__main__":
     # YOU CAN DELETE EVERYTHING BELOW!
 
     use_improved_weight_init = True
-    use_improved_sigmoid = True
-    use_momentum = True
+    use_improved_sigmoid = False
+    use_momentum = False
 
 
     model_no_shuffle = SoftmaxModel(
@@ -64,17 +64,20 @@ if __name__ == "__main__":
 
     plt.subplot(1, 2, 1)
     utils.plot_loss(train_history["loss"],
-                    "Task 3c Model", npoints_to_average=10)
+                    "Task 3a Model", npoints_to_average=10)
     utils.plot_loss(
-        train_history_no_shuffle["loss"], "Task 3c Model - Momentum", npoints_to_average=10)
+        train_history_no_shuffle["loss"], "Task 3a Model - Improved Weight Init", npoints_to_average=10)
     plt.ylim([0, 1.3])
     plt.subplot(1, 2, 2)
-    plt.ylim([0.85, .97])
-    utils.plot_loss(val_history["accuracy"], "Task 3c Model")
+    plt.ylim([0.85, 1])
+    utils.plot_loss(train_history["accuracy"], "(Train) Task 3a Model")
     utils.plot_loss(
-        val_history_no_shuffle["accuracy"], "Task 3c Model - Momentum")
-    plt.ylabel("Validation Accuracy")
+        train_history_no_shuffle["accuracy"], "(Train) Task 3a Model - Improved Weight Init")
+    utils.plot_loss(val_history["accuracy"], "(Validation) Task 3a Model")
+    utils.plot_loss(
+        val_history_no_shuffle["accuracy"], "(Validation) Task 3a Model - Improved Weight Init")
+    plt.ylabel("Accuracy")
     plt.legend()
-    plt.savefig("task3c_momentum_new.png")
+    plt.savefig("task3a_improved_weights.png")
     plt.show()
  

@@ -88,5 +88,14 @@ class BaseTrainer:
                     val_history["loss"][global_step] = val_loss
                     val_history["accuracy"][global_step] = accuracy_val
                     # TODO: Implement early stopping (copy from last assignment)
+                    num_epoch_constant = 50
+                    losses = list(val_history["loss"].values())
+                    if len(losses) > num_epoch_constant:
+                        lowest = min(losses)
+                        num_increased_epoch = list(map(lambda x: lowest < x, losses[-num_epoch_constant:]))
+                        if sum(num_increased_epoch) == num_epoch_constant:
+                            print("End Epoch: ", epoch)
+                            return train_history, val_history
+
                 global_step += 1
         return train_history, val_history

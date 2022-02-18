@@ -16,7 +16,11 @@ def calculate_accuracy(X: np.ndarray, targets: np.ndarray, model: SoftmaxModel) 
         Accuracy (float)
     """
     # TODO: Implement this function (copy from last assignment)
-    accuracy = 0
+    y_hat = model.forward(X)
+    y_hat_idx = np.argmax(y_hat, axis=1)
+    target_idx = np.argmax(targets, axis=1)
+
+    accuracy = np.mean(y_hat_idx == target_idx)
     return accuracy
 
 
@@ -47,10 +51,18 @@ class SoftmaxTrainer(BaseTrainer):
             loss value (float) on batch
         """
         # TODO: Implement this function (task 2c)
-
-        loss = 0
+        logits = self.model.forward(X_batch)
 
         loss = cross_entropy_loss(Y_batch, logits)  # sol
+
+        self.model.backward(X_batch, logits, Y_batch)
+
+        for idx, gradient in enumerate(self.model.grads):
+            if self.use_momentum:
+                gradient = self.momentum_gamma * self.previous_grads[idx] + gradient
+                self.previous_grads[idx] = gradient
+            self.model.ws[idx] = self.model.ws[idx] - gradient * self.learning_rate
+
 
         return loss
 
@@ -87,14 +99,18 @@ if __name__ == "__main__":
     shuffle_data = True
 
     # Settings for task 3. Keep all to false for task 2.
-    use_improved_sigmoid = False
+    use_improved_sigmoid = True
     use_improved_weight_init = False
     use_momentum = False
 
     # Load dataset
     X_train, Y_train, X_val, Y_val = utils.load_full_mnist()
-    X_train = pre_process_images(X_train)
-    X_val = pre_process_images(X_val)
+
+    mean = np.mean(X_train)
+    std = np.std(X_train)
+
+    X_train = pre_process_images(X_train, mean, std)
+    X_val = pre_process_images(X_val, mean, std)
     Y_train = one_hot_encode(Y_train, 10)
     Y_val = one_hot_encode(Y_val, 10)
     # Hyperparameters

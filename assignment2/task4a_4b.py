@@ -46,7 +46,8 @@ if __name__ == "__main__":
 
     use_improved_weight_init = True
     use_improved_sigmoid = True
-    use_momentum = True
+    use_momentum = False
+    neurons_per_layer = [32, 10]
 
 
     model_no_shuffle = SoftmaxModel(
@@ -60,21 +61,47 @@ if __name__ == "__main__":
     )
     train_history_no_shuffle, val_history_no_shuffle = trainer_shuffle.train(
         num_epochs)
+
+    # Example created for comparing with and without shuffling.
+    # For comparison, show all loss/accuracy curves in the same plot
+    # YOU CAN DELETE EVERYTHING BELOW!
+
+    use_improved_weight_init = True
+    use_improved_sigmoid = True
+    use_momentum = False
+    neurons_per_layer = [128, 10]
+
+
+    model_no_shuffle_1 = SoftmaxModel(
+        neurons_per_layer,
+        use_improved_sigmoid,
+        use_improved_weight_init)
+    trainer_shuffle_1 = SoftmaxTrainer(
+        momentum_gamma, use_momentum,
+        model_no_shuffle_1, learning_rate, batch_size, shuffle_data,
+        X_train, Y_train, X_val, Y_val,
+    )
+    train_history_no_shuffle_1, val_history_no_shuffle_1 = trainer_shuffle_1.train(
+        num_epochs)
         
 
     plt.subplot(1, 2, 1)
     utils.plot_loss(train_history["loss"],
-                    "Task 3c Model", npoints_to_average=10)
+                    "Task 3 Model", npoints_to_average=10)
     utils.plot_loss(
-        train_history_no_shuffle["loss"], "Task 3c Model - Momentum", npoints_to_average=10)
-    plt.ylim([0, 1.3])
+        train_history_no_shuffle["loss"], "Task 4a Model", npoints_to_average=10)
+    utils.plot_loss(
+        train_history_no_shuffle_1["loss"], "Task 4b Model", npoints_to_average=10)
+    plt.ylim([0, 0.6])
     plt.subplot(1, 2, 2)
-    plt.ylim([0.85, .97])
-    utils.plot_loss(val_history["accuracy"], "Task 3c Model")
+    plt.ylim([0.92, .97])
+    utils.plot_loss(val_history["accuracy"], "Task 3 Model")
     utils.plot_loss(
-        val_history_no_shuffle["accuracy"], "Task 3c Model - Momentum")
+        val_history_no_shuffle["accuracy"], "Task 4a Model")
+    utils.plot_loss(
+        val_history_no_shuffle_1["accuracy"], "Task 4b Model")
     plt.ylabel("Validation Accuracy")
     plt.legend()
-    plt.savefig("task3c_momentum_new.png")
+    plt.savefig("task4a_4b.png")
     plt.show()
  

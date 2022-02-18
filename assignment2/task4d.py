@@ -1,6 +1,7 @@
 import utils
 import matplotlib.pyplot as plt
-from task2a import pre_process_images, one_hot_encode, SoftmaxModel
+from task2a import pre_process_images, one_hot_encode
+from task4c import SoftmaxModel
 from task2 import SoftmaxTrainer
 import numpy as np
 
@@ -46,7 +47,8 @@ if __name__ == "__main__":
 
     use_improved_weight_init = True
     use_improved_sigmoid = True
-    use_momentum = True
+    use_momentum = False
+    neurons_per_layer = [59, 59, 10]
 
 
     model_no_shuffle = SoftmaxModel(
@@ -64,17 +66,17 @@ if __name__ == "__main__":
 
     plt.subplot(1, 2, 1)
     utils.plot_loss(train_history["loss"],
-                    "Task 3c Model", npoints_to_average=10)
+                    "Task 4d Model - 1 hidden", npoints_to_average=10)
     utils.plot_loss(
-        train_history_no_shuffle["loss"], "Task 3c Model - Momentum", npoints_to_average=10)
-    plt.ylim([0, 1.3])
+        train_history_no_shuffle["loss"], "Task 4d Model - 2 hidden", npoints_to_average=10)
+    plt.ylim([0, 0.5])
     plt.subplot(1, 2, 2)
-    plt.ylim([0.85, .97])
-    utils.plot_loss(val_history["accuracy"], "Task 3c Model")
+    plt.ylim([0.92, .97])
+    utils.plot_loss(val_history["accuracy"], "Task 4d Model - 1 hidden")
     utils.plot_loss(
-        val_history_no_shuffle["accuracy"], "Task 3c Model - Momentum")
+        val_history_no_shuffle["accuracy"], "Task 4d Model - 2 hidden")
     plt.ylabel("Validation Accuracy")
     plt.legend()
-    plt.savefig("task3c_momentum_new.png")
+    plt.savefig("task4d.png")
     plt.show()
  
