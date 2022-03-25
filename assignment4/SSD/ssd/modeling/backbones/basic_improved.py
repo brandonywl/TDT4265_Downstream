@@ -85,8 +85,7 @@ class BasicImprovedModel(torch.nn.Module):
         
         feat_map5 = nn.Sequential(
             nn.LeakyReLU(),
-            nn.Conv2d(in_channels=output_channels[3], out_channels=128, kernel_size=kernel_size, stride=1, padding=1),
-            nn.LeakyReLU(),
+            ResBlock(in_channels=output_channels[3], out_channels=128, kernel_size=kernel_size, stride=1, padding=1),
             nn.Conv2d(in_channels=128, out_channels=output_channels[4], kernel_size=kernel_size, stride=2, padding=1),
             nn.LeakyReLU()
         )
