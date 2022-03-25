@@ -7,20 +7,20 @@ class ResBlock(torch.nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size=(3,3), padding=1, stride=1):
         super().__init__()
         self.model = nn.Sequential(
-            nn.Conv2d(in_channels=in_channels, out_channels=in_channels, kernel_size=kernel_size, padding=padding, stride=stride),
-            nn.ReLU(),
             nn.Conv2d(in_channels=in_channels, out_channels=in_channels*2, kernel_size=kernel_size, padding=padding, stride=stride),
-            nn.ReLU(),
+            nn.LeakyReLU(),
+            nn.Conv2d(in_channels=in_channels*2, out_channels=in_channels*2, kernel_size=kernel_size, padding=padding, stride=stride),
+            nn.LeakyReLU(),
             nn.Conv2d(in_channels=in_channels*2, out_channels=in_channels*4, kernel_size=kernel_size, padding=padding, stride=stride),
-            nn.ReLU(),
+            nn.LeakyReLU(),
             nn.BatchNorm2d(in_channels*4),
             nn.Conv2d(in_channels=in_channels*4, out_channels=in_channels, kernel_size=(1,1), padding=0),
-            nn.ReLU()
+            nn.LeakyReLU()
         )
 
         self.skip_resizer = nn.Sequential(
             nn.Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=(3,3), padding=1),
-            nn.ReLU(),
+            nn.LeakyReLU(),
         )
 
     def forward(self, x):
@@ -54,49 +54,49 @@ class BasicImprovedModel(torch.nn.Module):
 
         feat_map1 = nn.Sequential(
             nn.Conv2d(in_channels=image_channels, out_channels=32, kernel_size=kernel_size, stride=1, padding=1),
-            nn.ReLU(),
+            nn.LeakyReLU(),
             nn.MaxPool2d(kernel_size=(2,2)),
             ResBlock(32, 64),
             nn.MaxPool2d(kernel_size=(2,2)),
             nn.Conv2d(in_channels=64, out_channels=output_channels[0], kernel_size=kernel_size, stride=2, padding=1),
-            nn.ReLU()
+            nn.LeakyReLU()
         )
 
         feat_map2 = nn.Sequential(
-            nn.ReLU(),
+            nn.LeakyReLU(),
             ResBlock(output_channels[0], 128),
             nn.Conv2d(in_channels=128, out_channels=output_channels[1], kernel_size=kernel_size, stride=2, padding=1),
-            nn.ReLU()
+            nn.LeakyReLU()
         )
 
         feat_map3 = nn.Sequential(
-            nn.ReLU(),
+            nn.LeakyReLU(),
             ResBlock(in_channels=output_channels[1], out_channels=256, kernel_size=(5,5), stride=1, padding=2),
             nn.Conv2d(in_channels=256, out_channels=output_channels[2], kernel_size=kernel_size, stride=2, padding=1),
-            nn.ReLU()
+            nn.LeakyReLU()
         )
 
         feat_map4 = nn.Sequential(
-            nn.ReLU(),
+            nn.LeakyReLU(),
             ResBlock(in_channels=output_channels[2], out_channels=128, kernel_size=(5,5), stride=1, padding=2),
             nn.Conv2d(in_channels=128, out_channels=output_channels[3], kernel_size=kernel_size, stride=2, padding=1),
-            nn.ReLU()
+            nn.LeakyReLU()
         )
         
         feat_map5 = nn.Sequential(
-            nn.ReLU(),
+            nn.LeakyReLU(),
             nn.Conv2d(in_channels=output_channels[3], out_channels=128, kernel_size=kernel_size, stride=1, padding=1),
-            nn.ReLU(),
+            nn.LeakyReLU(),
             nn.Conv2d(in_channels=128, out_channels=output_channels[4], kernel_size=kernel_size, stride=2, padding=1),
-            nn.ReLU()
+            nn.LeakyReLU()
         )
         
         feat_map6 = nn.Sequential(
-            nn.ReLU(),
+            nn.LeakyReLU(),
             nn.Conv2d(in_channels=output_channels[4], out_channels=128, kernel_size=kernel_size, stride=1, padding=1),
-            nn.ReLU(),
+            nn.LeakyReLU(),
             nn.Conv2d(in_channels=128, out_channels=output_channels[5], kernel_size=kernel_size, stride=1, padding=0),
-            nn.ReLU()
+            nn.LeakyReLU()
         )
 
         feature_extractors = [
