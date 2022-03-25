@@ -3,6 +3,27 @@ import torch.nn as nn
 from typing import Tuple, List
 
 
+class ResBlock(torch.nn.Module):
+    def __init__(self, in_channels, out_channels, filter_size=(3,3), padding=1, stride=1):
+        super().__init__()
+        self.model = nn.Sequential(
+            nn.Conv2d(in_channels=in_channels, out_channels=in_channels*2, kernel_size=filter_size, padding=padding, stride=stride),
+            nn.ReLU(),
+            nn.Conv2d(in_channels=in_channels*2, out_channels=in_channels*4, kernel_size=filter_size, padding=padding, stride=stride),
+            nn.ReLU(),
+            nn.Conv2d(in_channels=in_channels*4, out_channels=in_channels*8, kernel_size=filter_size, padding=padding, stride=stride),
+            nn.ReLU(),
+            nn.MaxPool2d(),
+            nn.BatchNorm2d(in_channels*8),
+            nn.Conv2d(in_channels=in_channels*8, out_channels=out_channels, kernel_size=(1,1), padding=0),
+            nn.ReLU()
+        )
+
+    def forward(self, x):
+        output = self.model(x)
+        return output
+
+
 class BasicImprovedModel(torch.nn.Module):
     """
     This is a basic backbone for SSD.
@@ -29,40 +50,28 @@ class BasicImprovedModel(torch.nn.Module):
             nn.Conv2d(in_channels=image_channels, out_channels=32, kernel_size=kernel_size, stride=1, padding=1),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=(2,2)),
-            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=kernel_size, stride=1, padding=1),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=(2,2)),
-            nn.BatchNorm2d(64),
-            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=kernel_size, stride=1, padding=1),
-            nn.ReLU(),
+            ResBlock(32, 64),
             nn.Conv2d(in_channels=64, out_channels=output_channels[0], kernel_size=kernel_size, stride=2, padding=1),
-            nn.ReLU(),
-            nn.BatchNorm2d(output_channels[0]),
+            nn.ReLU()
         )
 
         feat_map2 = nn.Sequential(
             nn.ReLU(),
-            nn.Conv2d(in_channels=output_channels[0], out_channels=128, kernel_size=kernel_size, stride=1, padding=1),
-            nn.ReLU(),
-            nn.BatchNorm2d(128),
+            ResBlock(output_channels[0], 128),
             nn.Conv2d(in_channels=128, out_channels=output_channels[1], kernel_size=kernel_size, stride=2, padding=1),
             nn.ReLU()
         )
 
         feat_map3 = nn.Sequential(
             nn.ReLU(),
-            nn.Conv2d(in_channels=output_channels[1], out_channels=256, kernel_size=kernel_size, stride=1, padding=1),
-            nn.ReLU(),
-            nn.BatchNorm2d(256),
+            ResBlock(in_channels=output_channels[1], out_channels=256, kernel_size=(5,5), stride=1, padding=2),
             nn.Conv2d(in_channels=256, out_channels=output_channels[2], kernel_size=kernel_size, stride=2, padding=1),
             nn.ReLU()
         )
 
         feat_map4 = nn.Sequential(
             nn.ReLU(),
-            nn.Conv2d(in_channels=output_channels[2], out_channels=128, kernel_size=kernel_size, stride=1, padding=1),
-            nn.ReLU(),
-            nn.BatchNorm2d(128),
+            ResBlock(in_channels=output_channels[2], out_channels=128, kernel_size=(5,5), stride=1, padding=2),
             nn.Conv2d(in_channels=128, out_channels=output_channels[3], kernel_size=kernel_size, stride=2, padding=1),
             nn.ReLU()
         )
@@ -70,8 +79,6 @@ class BasicImprovedModel(torch.nn.Module):
         feat_map5 = nn.Sequential(
             nn.ReLU(),
             nn.Conv2d(in_channels=output_channels[3], out_channels=128, kernel_size=kernel_size, stride=1, padding=1),
-            nn.ReLU(),
-            nn.BatchNorm2d(128),
             nn.Conv2d(in_channels=128, out_channels=output_channels[4], kernel_size=kernel_size, stride=2, padding=1),
             nn.ReLU()
         )
@@ -79,8 +86,6 @@ class BasicImprovedModel(torch.nn.Module):
         feat_map6 = nn.Sequential(
             nn.ReLU(),
             nn.Conv2d(in_channels=output_channels[4], out_channels=128, kernel_size=kernel_size, stride=1, padding=1),
-            nn.ReLU(),
-            nn.BatchNorm2d(128),
             nn.Conv2d(in_channels=128, out_channels=output_channels[5], kernel_size=kernel_size, stride=1, padding=0),
             nn.ReLU()
         )
