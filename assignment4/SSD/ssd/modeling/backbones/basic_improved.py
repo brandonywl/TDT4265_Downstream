@@ -13,14 +13,20 @@ class ResBlock(torch.nn.Module):
             nn.ReLU(),
             nn.Conv2d(in_channels=in_channels*4, out_channels=in_channels*8, kernel_size=kernel_size, padding=padding, stride=stride),
             nn.ReLU(),
-            nn.MaxPool2d((2,2)),
             nn.BatchNorm2d(in_channels*8),
-            nn.Conv2d(in_channels=in_channels*8, out_channels=out_channels, kernel_size=(1,1), padding=0),
+            nn.Conv2d(in_channels=in_channels*8, out_channels=in_channels, kernel_size=(1,1), padding=0),
             nn.ReLU()
+        )
+
+        self.skip_resizer = nn.Sequential(
+            nn.Conv2d(in_channels=in_channels, out_channels=out_channels, kernel_size=(3,3), padding=1),
+            nn.ReLU(),
         )
 
     def forward(self, x):
         output = self.model(x)
+        output = output + x
+        output = self.skip_resizer(output)
         return output
 
 
@@ -51,6 +57,7 @@ class BasicImprovedModel(torch.nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=(2,2)),
             ResBlock(32, 64),
+            nn.MaxPool2d(kernel_size=(2,2)),
             nn.Conv2d(in_channels=64, out_channels=output_channels[0], kernel_size=kernel_size, stride=2, padding=1),
             nn.ReLU()
         )
@@ -64,14 +71,14 @@ class BasicImprovedModel(torch.nn.Module):
 
         feat_map3 = nn.Sequential(
             nn.ReLU(),
-            ResBlock(in_channels=output_channels[1], out_channels=256, kernel_size=(3,3), stride=1, padding=1),
+            ResBlock(in_channels=output_channels[1], out_channels=256, kernel_size=(5,5), stride=1, padding=2),
             nn.Conv2d(in_channels=256, out_channels=output_channels[2], kernel_size=kernel_size, stride=2, padding=1),
             nn.ReLU()
         )
 
         feat_map4 = nn.Sequential(
             nn.ReLU(),
-            ResBlock(in_channels=output_channels[2], out_channels=128, kernel_size=(3,3), stride=1, padding=1),
+            ResBlock(in_channels=output_channels[2], out_channels=128, kernel_size=(5,5), stride=1, padding=2),
             nn.Conv2d(in_channels=128, out_channels=output_channels[3], kernel_size=kernel_size, stride=2, padding=1),
             nn.ReLU()
         )
@@ -79,6 +86,7 @@ class BasicImprovedModel(torch.nn.Module):
         feat_map5 = nn.Sequential(
             nn.ReLU(),
             nn.Conv2d(in_channels=output_channels[3], out_channels=128, kernel_size=kernel_size, stride=1, padding=1),
+            nn.ReLU(),
             nn.Conv2d(in_channels=128, out_channels=output_channels[4], kernel_size=kernel_size, stride=2, padding=1),
             nn.ReLU()
         )
@@ -86,6 +94,7 @@ class BasicImprovedModel(torch.nn.Module):
         feat_map6 = nn.Sequential(
             nn.ReLU(),
             nn.Conv2d(in_channels=output_channels[4], out_channels=128, kernel_size=kernel_size, stride=1, padding=1),
+            nn.ReLU(),
             nn.Conv2d(in_channels=128, out_channels=output_channels[5], kernel_size=kernel_size, stride=1, padding=0),
             nn.ReLU()
         )
