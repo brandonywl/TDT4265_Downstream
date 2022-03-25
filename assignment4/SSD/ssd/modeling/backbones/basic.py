@@ -101,9 +101,9 @@ class BasicModel(torch.nn.Module):
         """
         out_features = []
 
-        for feature_extractors in self.feature_extractors:
-            
-            pass
+        for feature_extractor in self.feature_extractors:
+            x = feature_extractor(x)
+            out_features.append(x)
 
 
         for idx, feature in enumerate(out_features):
