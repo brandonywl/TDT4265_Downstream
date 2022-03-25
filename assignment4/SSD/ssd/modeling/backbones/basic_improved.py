@@ -13,7 +13,7 @@ class ResBlock(torch.nn.Module):
             nn.ReLU(),
             nn.Conv2d(in_channels=in_channels*4, out_channels=in_channels*8, kernel_size=filter_size, padding=padding, stride=stride),
             nn.ReLU(),
-            nn.MaxPool2d(),
+            nn.MaxPool2d((2,2)),
             nn.BatchNorm2d(in_channels*8),
             nn.Conv2d(in_channels=in_channels*8, out_channels=out_channels, kernel_size=(1,1), padding=0),
             nn.ReLU()
