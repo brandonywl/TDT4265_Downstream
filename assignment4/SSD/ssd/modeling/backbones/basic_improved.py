@@ -64,14 +64,14 @@ class BasicImprovedModel(torch.nn.Module):
 
         feat_map3 = nn.Sequential(
             nn.ReLU(),
-            ResBlock(in_channels=output_channels[1], out_channels=256, kernel_size=(5,5), stride=1, padding=2),
+            ResBlock(in_channels=output_channels[1], out_channels=256, kernel_size=(3,3), stride=1, padding=1),
             nn.Conv2d(in_channels=256, out_channels=output_channels[2], kernel_size=kernel_size, stride=2, padding=1),
             nn.ReLU()
         )
 
         feat_map4 = nn.Sequential(
             nn.ReLU(),
-            ResBlock(in_channels=output_channels[2], out_channels=128, kernel_size=(5,5), stride=1, padding=2),
+            ResBlock(in_channels=output_channels[2], out_channels=128, kernel_size=(3,3), stride=1, padding=1),
             nn.Conv2d(in_channels=128, out_channels=output_channels[3], kernel_size=kernel_size, stride=2, padding=1),
             nn.ReLU()
         )
