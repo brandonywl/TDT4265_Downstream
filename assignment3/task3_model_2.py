@@ -7,8 +7,8 @@ from dataloaders import load_cifar10
 from trainer import Trainer
 
 
-class Task2Model(nn.Module):
-
+class Task3_Model_2(nn.Module):
+    
     def __init__(self,
                  image_channels,
                  num_classes):
@@ -19,27 +19,30 @@ class Task2Model(nn.Module):
                 num_classes: Number of classes we want to predict (10)
         """
         super().__init__()
-        # TODO: Implement this function (Task  2a)
+        # num_filters = 32  # Set number of filters in first conv layer
         self.num_classes = num_classes
 
         self.conv_stack = nn.Sequential(
-            nn.Conv2d(in_channels=image_channels, out_channels=32, 
-                      kernel_size=5, stride=1, padding=2),
+            nn.Conv2d(in_channels=3, out_channels=32, kernel_size=3, stride=1, padding=2),
             nn.ReLU(),
             nn.MaxPool2d(2,2),
-            nn.Conv2d(in_channels=32, out_channels=64, 
-                      kernel_size=5, stride=1, padding=2),
+            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=1, padding=2),
+            nn.ReLU(),
+            nn.BatchNorm2d(64),
+            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=5, stride=1, padding=2),
             nn.ReLU(),
             nn.MaxPool2d(2,2),
-            nn.Conv2d(in_channels=64, out_channels=128, 
-                      kernel_size=5, stride=1, padding=2),
+            nn.Conv2d(in_channels=128, out_channels=256, kernel_size=5, stride=1, padding=2),
+            nn.ReLU(),
+            nn.BatchNorm2d(256),
+            nn.Conv2d(in_channels=256, out_channels=512, kernel_size=7, stride=1, padding=2),
             nn.ReLU(),
             nn.MaxPool2d(2,2)
         )
 
         self.fc_stack = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(2048, 64),
+            nn.Linear(4608, 64),
             nn.ReLU(),
             nn.Linear(64, 10)
         )
@@ -50,7 +53,6 @@ class Task2Model(nn.Module):
         Args:
             x: Input image, shape: [batch_size, 3, 32, 32]
         """
-        # TODO: Implement this function (Task  2a)
         batch_size = x.shape[0]
         out = self.conv_stack(x)
         out = self.fc_stack(out)
@@ -88,7 +90,7 @@ def main():
     early_stop_count = 4
     dataloaders = load_cifar10(batch_size)
     optimizer = torch.optim.SGD
-    model = Task2Model(image_channels=3, num_classes=10)
+    model = Task3_Model_2(image_channels=3, num_classes=10)
     trainer = Trainer(
         batch_size,
         learning_rate,
@@ -99,7 +101,7 @@ def main():
         optimizer
     )
     trainer.train()
-    create_plots(trainer, "task2")
+    create_plots(trainer, "task3a_model_2")
 
 if __name__ == "__main__":
     main()

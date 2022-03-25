@@ -51,6 +51,7 @@ files_added = []
 with zipfile.ZipFile(zipfile_path, "w") as fp:
     for filename, extensions in files_to_include.items():
         filepath = select_file(filename, extensions)
+        print(filepath)
         assert os.path.isfile(filepath),\
             f"Did not find path: {filepath}"
         fp.write(filepath)

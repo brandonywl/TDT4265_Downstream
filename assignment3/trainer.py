@@ -22,6 +22,9 @@ def compute_loss_and_accuracy(
     """
     average_loss = 0
     accuracy = 0
+    losses = 0
+    corrects = 0    
+    total_count = 0
     # TODO: Implement this function (Task  2a)
     with torch.no_grad():
         for (X_batch, Y_batch) in dataloader:
@@ -30,8 +33,17 @@ def compute_loss_and_accuracy(
             Y_batch = utils.to_cuda(Y_batch)
             # Forward pass the images through our model
             output_probs = model(X_batch)
+            Y_hat = output_probs.argmax(axis=1)
+
+            losses += loss_criterion(output_probs, Y_batch).item()
+
+            corrects += torch.sum(Y_hat == Y_batch).item()
+            total_count += len(Y_batch)
 
             # Compute Loss and Accuracy
+        average_loss = losses / len(dataloader)
+        accuracy = corrects / total_count
+
 
     return average_loss, accuracy
 
@@ -44,7 +56,8 @@ class Trainer:
                  early_stop_count: int,
                  epochs: int,
                  model: torch.nn.Module,
-                 dataloaders: typing.List[torch.utils.data.DataLoader]):
+                 dataloaders: typing.List[torch.utils.data.DataLoader],
+                 optimizer: torch.optim.Optimizer):
         """
             Initialize our trainer class.
         """
@@ -62,8 +75,10 @@ class Trainer:
         print(self.model)
 
         # Define our optimizer. SGD = Stochastich Gradient Descent
-        self.optimizer = torch.optim.SGD(self.model.parameters(),
-                                         self.learning_rate)
+        self.optimizer = optimizer(self.model.parameters(),
+                                   self.learning_rate)
+        # self.optimizer = torch.optim.SGD(self.model.parameters(),
+        #                                  self.learning_rate)
 
         # Load our dataset
         self.dataloader_train, self.dataloader_val, self.dataloader_test = dataloaders
@@ -83,6 +98,10 @@ class Trainer:
             loss=collections.OrderedDict(),
             accuracy=collections.OrderedDict()
         )
+        self.test_history = dict(
+            loss=collections.OrderedDict(),
+            accuracy=collections.OrderedDict()
+        )
         self.checkpoint_dir = pathlib.Path("checkpoints")
 
     def validation_step(self):
@@ -96,15 +115,36 @@ class Trainer:
         )
         self.validation_history["loss"][self.global_step] = validation_loss
         self.validation_history["accuracy"][self.global_step] = validation_acc
+
+        test_loss, test_acc = compute_loss_and_accuracy(
+            self.dataloader_test, self.model, self.loss_criterion
+        )
+        self.test_history["loss"][self.global_step] = test_loss
+        self.test_history["accuracy"][self.global_step] = test_acc
+
+        train_loss, train_acc = compute_loss_and_accuracy(
+            self.dataloader_train, self.model, self.loss_criterion
+        )
+        self.train_history["loss"][self.global_step] = train_loss
+        self.train_history["accuracy"][self.global_step] = train_acc
+
         used_time = time.time() - self.start_time
+
+
         print(
             f"Epoch: {self.epoch:>1}",
             f"Batches per seconds: {self.global_step / used_time:.2f}",
             f"Global step: {self.global_step:>6}",
+            "\n"
+            f"Train Loss: {train_loss:.2f}",
+            f"Train Accuracy: {train_acc:.3f}",
             f"Validation Loss: {validation_loss:.2f}",
             f"Validation Accuracy: {validation_acc:.3f}",
+            f"Test Loss: {test_loss:.3f}",
+            f"Test Accuracy: {test_acc:.3f}",
             sep=", ")
         self.model.train()
+
 
     def should_early_stop(self):
         """
@@ -166,9 +206,12 @@ class Trainer:
             for X_batch, Y_batch in self.dataloader_train:
                 loss = self.train_step(X_batch, Y_batch)
                 self.train_history["loss"][self.global_step] = loss
+                
+
                 self.global_step += 1
                 # Compute loss/accuracy for validation set
                 if should_validate_model():
+
                     self.validation_step()
                     self.save_model()
                     if self.should_early_stop():

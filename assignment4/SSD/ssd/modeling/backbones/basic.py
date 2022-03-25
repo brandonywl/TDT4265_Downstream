@@ -1,4 +1,5 @@
 import torch
+import torch.nn as nn
 from typing import Tuple, List
 
 
@@ -21,6 +22,70 @@ class BasicModel(torch.nn.Module):
         self.out_channels = output_channels
         self.output_feature_shape = output_feature_sizes
 
+        kernel_size = (3, 3)
+
+
+        feat_map1 = nn.Sequential(
+            nn.Conv2d(in_channels=image_channels, out_channels=32, kernel_size=kernel_size, stride=1, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=(2,2)),
+            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=kernel_size, stride=1, padding=1),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=(2,2)),
+            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=kernel_size, stride=1, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(in_channels=64, out_channels=output_channels[0], kernel_size=kernel_size, stride=2, padding=1),
+            nn.ReLU()
+        )
+
+        feat_map2 = nn.Sequential(
+            nn.ReLU(),
+            nn.Conv2d(in_channels=output_channels[0], out_channels=128, kernel_size=kernel_size, stride=1, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(in_channels=128, out_channels=output_channels[1], kernel_size=kernel_size, stride=2, padding=1),
+            nn.ReLU()
+        )
+
+        feat_map3 = nn.Sequential(
+            nn.ReLU(),
+            nn.Conv2d(in_channels=output_channels[1], out_channels=256, kernel_size=kernel_size, stride=1, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(in_channels=256, out_channels=output_channels[2], kernel_size=kernel_size, stride=2, padding=1),
+            nn.ReLU()
+        )
+
+        feat_map4 = nn.Sequential(
+            nn.ReLU(),
+            nn.Conv2d(in_channels=output_channels[2], out_channels=128, kernel_size=kernel_size, stride=1, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(in_channels=128, out_channels=output_channels[3], kernel_size=kernel_size, stride=2, padding=1),
+            nn.ReLU()
+        )
+        
+        feat_map5 = nn.Sequential(
+            nn.ReLU(),
+            nn.Conv2d(in_channels=output_channels[3], out_channels=128, kernel_size=kernel_size, stride=1, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(in_channels=128, out_channels=output_channels[4], kernel_size=kernel_size, stride=2, padding=1),
+            nn.ReLU()
+        )
+        
+        feat_map6 = nn.Sequential(
+            nn.ReLU(),
+            nn.Conv2d(in_channels=output_channels[4], out_channels=128, kernel_size=kernel_size, stride=1, padding=1),
+            nn.ReLU(),
+            nn.Conv2d(in_channels=128, out_channels=output_channels[5], kernel_size=kernel_size, stride=1, padding=0),
+            nn.ReLU()
+        )
+
+        feature_extractors = [
+            feat_map1, feat_map2, feat_map3, feat_map4, feat_map5, feat_map6
+        ]
+
+        self.feature_extractors = nn.ModuleList(feature_extractors)
+        
+        
+
     def forward(self, x):
         """
         The forward functiom should output features with shape:
@@ -35,6 +100,12 @@ class BasicModel(torch.nn.Module):
             shape(-1, output_channels[0], 38, 38),
         """
         out_features = []
+
+        for feature_extractors in self.feature_extractors:
+            
+            pass
+
+
         for idx, feature in enumerate(out_features):
             out_channel = self.out_channels[idx]
             h, w = self.output_feature_shape[idx]
